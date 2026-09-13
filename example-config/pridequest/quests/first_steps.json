@@ -1,0 +1,58 @@
+{
+  "id": "first_steps",
+  "title": "First Steps",
+  "description": "Begin your journey through the Pride Region.",
+  "autoStartNext": false,
+  "nextQuest": "",
+  "objectives": [
+    {
+      "id": "choose_partner",
+      "type": "starter_chosen",
+      "text": "Choose your first Pokémon with Professor Sequoia",
+      "target": 1
+    },
+    {
+      "id": "return_to_sequoia",
+      "type": "manual",
+      "trigger": "sequoia_return",
+      "text": "Return to Professor Sequoia",
+      "target": 1
+    },
+    {
+      "id": "meet_avery",
+      "type": "manual",
+      "trigger": "avery_kit",
+      "text": "Speak with Avery and collect your field kit",
+      "target": 1
+    },
+    {
+      "id": "first_catch",
+      "type": "catch_pokemon",
+      "text": "Catch your first wild Pokémon",
+      "target": 1
+    },
+    {
+      "id": "apricorn_training",
+      "type": "harvest_apricorn",
+      "text": "Harvest 5 Apricorns",
+      "target": 5
+    },
+    {
+      "id": "road_to_thorn",
+      "type": "manual",
+      "trigger": "reach_thorn",
+      "text": "Travel to Thorn's Grass Gym",
+      "target": 1
+    },
+    {
+      "id": "first_badge",
+      "type": "manual",
+      "trigger": "defeat_thorn",
+      "text": "Defeat Thorn and earn the Grass Badge",
+      "target": 1
+    }
+  ],
+  "completionCommands": [
+    "tellraw {player} {\"text\":\"Pride Region Journey updated: Grass Badge complete!\",\"color\":\"green\"}"
+  ]
+}
