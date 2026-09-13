@@ -25,6 +25,12 @@ public final class PlayerQuestState {
         public int progress = 0;
         public long startedAt = System.currentTimeMillis();
 
+        /**
+         * Used by the server-side tracker policy so a newly started main-story quest
+         * can take over the tracker once, while still respecting later manual /q track choices.
+         */
+        public boolean trackingPolicyHandled = false;
+
         public ActiveQuestState() {}
 
         public ActiveQuestState(int objectiveIndex, int progress) {
