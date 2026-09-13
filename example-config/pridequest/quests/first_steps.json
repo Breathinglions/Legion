@@ -2,12 +2,12 @@
   "schemaVersion": 2,
   "id": "first_steps",
   "title": "First Steps",
-  "description": "Begin your journey through the Pride Region.",
+  "description": "Choose your first partner and learn the basics of life in the Pride Region.",
   "category": "story",
   "repeatable": false,
   "prerequisites": [],
-  "autoStartNext": false,
-  "nextQuest": "",
+  "autoStartNext": true,
+  "nextQuest": "road_to_thorn",
   "pool": "",
   "weight": 1,
   "reset": {
@@ -48,26 +48,12 @@
       "type": "harvest_apricorn",
       "text": "Harvest 5 Apricorns",
       "target": 5
-    },
-    {
-      "id": "road_to_thorn",
-      "type": "manual",
-      "trigger": "reach_thorn",
-      "text": "Travel to Thorn's Grass Gym",
-      "target": 1
-    },
-    {
-      "id": "first_badge",
-      "type": "manual",
-      "trigger": "defeat_thorn",
-      "text": "Defeat Thorn and earn the Grass Badge",
-      "target": 1
     }
   ],
   "rewards": [
     {
       "type": "message",
-      "message": "First Steps complete.",
+      "message": "First Steps complete. Your Gym journey begins now.",
       "amount": 1
     }
   ],
