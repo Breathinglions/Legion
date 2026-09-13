@@ -1,0 +1,36 @@
+{
+  "schemaVersion": 2,
+  "id": "road_to_thorn",
+  "title": "Road to Thorn",
+  "description": "Travel to Thorn's Grass Gym and prepare for your first Gym challenge.",
+  "category": "story",
+  "repeatable": false,
+  "prerequisites": ["first_steps"],
+  "autoStartNext": true,
+  "nextQuest": "thorn_challenge",
+  "pool": "",
+  "weight": 1,
+  "reset": {
+    "type": "none",
+    "dayOfWeek": "MONDAY",
+    "hour": 0,
+    "timezone": "America/Los_Angeles"
+  },
+  "objectives": [
+    {
+      "id": "reach_thorn",
+      "type": "manual",
+      "trigger": "reach_thorn",
+      "text": "Travel to Thorn's Grass Gym",
+      "target": 1
+    }
+  ],
+  "rewards": [
+    {
+      "type": "message",
+      "message": "You've reached Thorn's Gym. Your first badge challenge awaits.",
+      "amount": 1
+    }
+  ],
+  "completionCommands": []
+}

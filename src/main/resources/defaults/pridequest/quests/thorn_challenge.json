@@ -1,0 +1,36 @@
+{
+  "schemaVersion": 2,
+  "id": "thorn_challenge",
+  "title": "The Grass Badge",
+  "description": "Defeat Thorn and earn the first badge of the Pride Region League.",
+  "category": "story",
+  "repeatable": false,
+  "prerequisites": ["road_to_thorn"],
+  "autoStartNext": false,
+  "nextQuest": "",
+  "pool": "",
+  "weight": 1,
+  "reset": {
+    "type": "none",
+    "dayOfWeek": "MONDAY",
+    "hour": 0,
+    "timezone": "America/Los_Angeles"
+  },
+  "objectives": [
+    {
+      "id": "defeat_thorn",
+      "type": "manual",
+      "trigger": "defeat_thorn",
+      "text": "Defeat Thorn and earn the Grass Badge",
+      "target": 1
+    }
+  ],
+  "rewards": [
+    {
+      "type": "message",
+      "message": "Grass Badge earned!",
+      "amount": 1
+    }
+  ],
+  "completionCommands": []
+}

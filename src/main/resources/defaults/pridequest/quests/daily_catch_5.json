@@ -1,0 +1,35 @@
+{
+  "schemaVersion": 2,
+  "id": "daily_catch_5",
+  "title": "Field Catching",
+  "description": "Catch five Pokémon today.",
+  "category": "daily",
+  "repeatable": true,
+  "prerequisites": [],
+  "autoStartNext": false,
+  "nextQuest": "",
+  "pool": "standard_daily",
+  "weight": 10,
+  "reset": {
+    "type": "daily",
+    "dayOfWeek": "MONDAY",
+    "hour": 0,
+    "timezone": "America/Los_Angeles"
+  },
+  "objectives": [
+    {
+      "id": "catch_5",
+      "type": "catch_pokemon",
+      "text": "Catch 5 Pokémon",
+      "target": 5
+    }
+  ],
+  "rewards": [
+    {
+      "type": "message",
+      "message": "Daily quest complete!",
+      "amount": 1
+    }
+  ],
+  "completionCommands": []
+}

@@ -1,0 +1,35 @@
+{
+  "schemaVersion": 2,
+  "id": "weekly_apricorn_25",
+  "title": "Apricorn Stockpile",
+  "description": "Harvest twenty-five Apricorns this week.",
+  "category": "weekly",
+  "repeatable": true,
+  "prerequisites": [],
+  "autoStartNext": false,
+  "nextQuest": "",
+  "pool": "standard_weekly",
+  "weight": 10,
+  "reset": {
+    "type": "weekly",
+    "dayOfWeek": "MONDAY",
+    "hour": 0,
+    "timezone": "America/Los_Angeles"
+  },
+  "objectives": [
+    {
+      "id": "harvest_25",
+      "type": "harvest_apricorn",
+      "text": "Harvest 25 Apricorns",
+      "target": 25
+    }
+  ],
+  "rewards": [
+    {
+      "type": "message",
+      "message": "Weekly quest complete!",
+      "amount": 1
+    }
+  ],
+  "completionCommands": []
+}
