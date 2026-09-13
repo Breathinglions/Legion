@@ -78,16 +78,14 @@ public final class QuestHud {
     }
 
     /**
-     * Intentionally smaller than v0.1's giant center-screen title.
-     * Major milestones can still use questCompleted or future badge-specific presentation.
+     * Normal objectives stay compact in the action bar. Big center-screen titles
+     * are reserved for quest completions and future badge/champion milestones.
      */
     public void objectiveCompleted(ServerPlayer player, String text) {
-        sendTitle(
-                player,
-                Component.empty(),
+        player.connection.send(new ClientboundSetActionBarTextPacket(
                 Component.literal("✓ Objective complete: ").withStyle(ChatFormatting.GREEN)
-                        .append(Component.literal(text).withStyle(ChatFormatting.WHITE)),
-                5, 28, 6);
+                        .append(Component.literal(text).withStyle(ChatFormatting.WHITE))
+        ));
     }
 
     public void questCompleted(ServerPlayer player, QuestDefinition quest) {
