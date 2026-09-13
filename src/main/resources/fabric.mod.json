@@ -1,0 +1,22 @@
+{
+  "schemaVersion": 1,
+  "id": "pridequest",
+  "version": "${version}",
+  "name": "PrideQuest",
+  "description": "Server-side Cobblemon story quest tracker for the Pride Region.",
+  "authors": ["BreathingLions"],
+  "license": "ARR",
+  "environment": "server",
+  "entrypoints": {
+    "main": [
+      "com.breathinglions.pridequest.PrideQuest"
+    ]
+  },
+  "depends": {
+    "fabricloader": ">=0.19.5",
+    "minecraft": "1.21.1",
+    "java": ">=21",
+    "fabric-api": "*",
+    "cobblemon": ">=1.8.0"
+  }
+}
