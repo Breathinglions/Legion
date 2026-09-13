@@ -18,6 +18,7 @@ public final class PrideQuest implements ModInitializer {
 
     @Override
     public void onInitialize() {
+        DefaultQuestInstaller.seed(REPO.questDir());
         REPO.loadQuests();
         PrideQuestCommands.register(REPO, SERVICE, HUD);
         CobblemonHooks.register(SERVICE);

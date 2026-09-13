@@ -1,0 +1,61 @@
+{
+  "schemaVersion": 2,
+  "id": "first_steps",
+  "title": "First Steps",
+  "description": "Choose your first partner and learn the basics of life in the Pride Region.",
+  "category": "story",
+  "repeatable": false,
+  "prerequisites": [],
+  "autoStartNext": true,
+  "nextQuest": "road_to_thorn",
+  "pool": "",
+  "weight": 1,
+  "reset": {
+    "type": "none",
+    "dayOfWeek": "MONDAY",
+    "hour": 0,
+    "timezone": "America/Los_Angeles"
+  },
+  "objectives": [
+    {
+      "id": "choose_partner",
+      "type": "starter_chosen",
+      "text": "Choose your first Pokémon with Professor Sequoia",
+      "target": 1
+    },
+    {
+      "id": "return_to_sequoia",
+      "type": "manual",
+      "trigger": "sequoia_return",
+      "text": "Return to Professor Sequoia",
+      "target": 1
+    },
+    {
+      "id": "meet_avery",
+      "type": "manual",
+      "trigger": "avery_kit",
+      "text": "Speak with Avery and collect your field kit",
+      "target": 1
+    },
+    {
+      "id": "first_catch",
+      "type": "catch_pokemon",
+      "text": "Catch your first wild Pokémon",
+      "target": 1
+    },
+    {
+      "id": "apricorn_training",
+      "type": "harvest_apricorn",
+      "text": "Harvest 5 Apricorns",
+      "target": 5
+    }
+  ],
+  "rewards": [
+    {
+      "type": "message",
+      "message": "First Steps complete. Your Gym journey begins now.",
+      "amount": 1
+    }
+  ],
+  "completionCommands": []
+}
