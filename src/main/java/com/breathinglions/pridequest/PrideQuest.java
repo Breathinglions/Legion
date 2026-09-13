@@ -33,6 +33,7 @@ public final class PrideQuest implements ModInitializer {
 
         ServerTickEvents.END_SERVER_TICK.register(server -> {
             SERVICE.tick(server.getPlayerList().getPlayers());
+            QuestTrackingPolicy.tick(server.getPlayerList().getPlayers(), REPO, HUD);
             HUD.tick(server.getPlayerList().getPlayers(), REPO);
         });
 
