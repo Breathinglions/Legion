@@ -3,7 +3,7 @@
   "id": "pridequest",
   "version": "${version}",
   "name": "PrideQuest",
-  "description": "Server-side Cobblemon story quest tracker for the Pride Region.",
+  "description": "Server-side Cobblemon quest and progression engine for story, side quests, rotating challenges and endgame content.",
   "authors": ["BreathingLions"],
   "license": "ARR",
   "environment": "server",
