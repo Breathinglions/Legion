@@ -2,7 +2,7 @@ name: Build PrideQuest
 
 on:
   push:
-    branches: [ pridequest-build ]
+    branches: [ pridequest-build, pridequest-v0.2 ]
   workflow_dispatch:
 
 jobs:
@@ -29,6 +29,6 @@ jobs:
       - name: Upload mod jar
         uses: actions/upload-artifact@v4
         with:
-          name: PrideQuest-v0.1.0
-          path: build/libs/pridequest-0.1.0.jar
+          name: PrideQuest-v0.2.0
+          path: build/libs/pridequest-0.2.0.jar
           if-no-files-found: error

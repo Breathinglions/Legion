@@ -9,6 +9,7 @@ import org.slf4j.LoggerFactory;
 
 public final class PrideQuest implements ModInitializer {
     public static final String MOD_ID = "pridequest";
+    public static final String VERSION = "0.2.0";
     public static final Logger LOGGER = LoggerFactory.getLogger(MOD_ID);
 
     public static final QuestRepository REPO = new QuestRepository();
@@ -26,9 +27,19 @@ public final class PrideQuest implements ModInitializer {
             LOGGER.info("PrideQuest attached to world {}", server.getWorldData().getLevelName());
         });
 
-        ServerTickEvents.END_SERVER_TICK.register(server -> HUD.tick(server.getPlayerList().getPlayers(), REPO));
-        ServerPlayConnectionEvents.JOIN.register((handler, sender, server) -> SERVICE.refresh(handler.player));
+        ServerLifecycleEvents.SERVER_STOPPING.register(server ->
+                REPO.saveAll(server.getPlayerList().getPlayers()));
 
-        LOGGER.info("PrideQuest v0.1.0 initialized - server-side quest tracking enabled");
+        ServerTickEvents.END_SERVER_TICK.register(server -> {
+            SERVICE.tick(server.getPlayerList().getPlayers());
+            HUD.tick(server.getPlayerList().getPlayers(), REPO);
+        });
+
+        ServerPlayConnectionEvents.JOIN.register((handler, sender, server) ->
+                SERVICE.refresh(handler.player));
+
+        LOGGER.info(
+                "PrideQuest v{} initialized - server-side multi-quest tracking enabled",
+                VERSION);
     }
 }

@@ -1,9 +1,21 @@
 {
+  "schemaVersion": 2,
   "id": "first_steps",
   "title": "First Steps",
   "description": "Begin your journey through the Pride Region.",
+  "category": "story",
+  "repeatable": false,
+  "prerequisites": [],
   "autoStartNext": false,
   "nextQuest": "",
+  "pool": "",
+  "weight": 1,
+  "reset": {
+    "type": "none",
+    "dayOfWeek": "MONDAY",
+    "hour": 0,
+    "timezone": "America/Los_Angeles"
+  },
   "objectives": [
     {
       "id": "choose_partner",
@@ -52,7 +64,12 @@
       "target": 1
     }
   ],
-  "completionCommands": [
-    "tellraw {player} {\"text\":\"Pride Region Journey updated: Grass Badge complete!\",\"color\":\"green\"}"
-  ]
+  "rewards": [
+    {
+      "type": "message",
+      "message": "First Steps complete.",
+      "amount": 1
+    }
+  ],
+  "completionCommands": []
 }

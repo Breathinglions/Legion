@@ -10,77 +10,147 @@ import net.minecraft.server.level.ServerBossEvent;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.BossEvent;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.UUID;
 
 public final class QuestHud {
     private static final int TEMP_TICKS = 20 * 8;
+
     private final Map<UUID, ServerBossEvent> bars = new HashMap<>();
     private final Map<UUID, Long> temporaryUntil = new HashMap<>();
-    private long tick = 0;
+    private long tick = 0L;
 
     public void tick(Collection<ServerPlayer> players, QuestRepository repo) {
         tick++;
+
         for (ServerPlayer player : players) {
             PlayerQuestState state = repo.state(player);
-            if (!state.hasQuest()) {
+            state.ensureTrackedQuest();
+
+            if (!state.hasAnyQuest() || state.trackedQuest.isBlank()) {
                 hide(player);
+                temporaryUntil.remove(player.getUUID());
                 continue;
             }
-            if (state.pinned || temporaryUntil.getOrDefault(player.getUUID(), 0L) >= tick) {
-                showTracker(player, repo.getQuest(state.activeQuest), state);
+
+            long until = temporaryUntil.getOrDefault(player.getUUID(), 0L);
+            if (until < tick) temporaryUntil.remove(player.getUUID());
+
+            if (state.pinned || until >= tick) {
+                showTracker(player, repo.getQuest(state.trackedQuest), state.active(state.trackedQuest));
             } else {
                 hide(player);
             }
         }
     }
 
-    public void questStarted(ServerPlayer player, QuestDefinition quest, PlayerQuestState state) {
-        sendTitle(player,
-                Component.literal("QUEST STARTED").withStyle(ChatFormatting.AQUA, ChatFormatting.BOLD),
-                Component.literal(quest.title).withStyle(ChatFormatting.GOLD));
+    public void questStarted(
+            ServerPlayer player,
+            QuestDefinition quest,
+            PlayerQuestState.ActiveQuestState active) {
+        sendTitle(
+                player,
+                Component.literal("NEW QUEST").withStyle(ChatFormatting.AQUA, ChatFormatting.BOLD),
+                Component.literal(quest.title).withStyle(ChatFormatting.GOLD),
+                8, 35, 8);
+
         temporaryUntil.put(player.getUUID(), tick + TEMP_TICKS);
-        showTracker(player, quest, state);
+        showTracker(player, quest, active);
     }
 
-    public void objectiveAdvanced(ServerPlayer player, QuestDefinition quest, PlayerQuestState state) {
-        QuestDefinition.Objective obj = currentObjective(quest, state);
-        if (obj == null) return;
+    public void objectiveAdvanced(
+            ServerPlayer player,
+            QuestDefinition quest,
+            PlayerQuestState.ActiveQuestState active) {
+        QuestDefinition.Objective objective = currentObjective(quest, active);
+        if (objective == null) return;
+
         player.connection.send(new ClientboundSetActionBarTextPacket(
                 Component.literal("✦ ").withStyle(ChatFormatting.AQUA)
-                        .append(Component.literal(obj.text).withStyle(ChatFormatting.WHITE))
-                        .append(Component.literal("  " + state.progress + "/" + Math.max(1, obj.target)).withStyle(ChatFormatting.YELLOW))
+                        .append(Component.literal(objective.text).withStyle(ChatFormatting.WHITE))
+                        .append(progressComponent(active.progress, objective.target))
         ));
-        if (state.pinned || temporaryUntil.getOrDefault(player.getUUID(), 0L) >= tick) showTracker(player, quest, state);
+
+        temporaryUntil.put(player.getUUID(), tick + TEMP_TICKS);
+        showTracker(player, quest, active);
     }
 
+    /**
+     * Intentionally smaller than v0.1's giant center-screen title.
+     * Major milestones can still use questCompleted or future badge-specific presentation.
+     */
     public void objectiveCompleted(ServerPlayer player, String text) {
-        sendTitle(player,
-                Component.literal("OBJECTIVE COMPLETE").withStyle(ChatFormatting.GREEN, ChatFormatting.BOLD),
-                Component.literal(text).withStyle(ChatFormatting.WHITE));
+        sendTitle(
+                player,
+                Component.empty(),
+                Component.literal("✓ Objective complete: ").withStyle(ChatFormatting.GREEN)
+                        .append(Component.literal(text).withStyle(ChatFormatting.WHITE)),
+                5, 28, 6);
     }
 
     public void questCompleted(ServerPlayer player, QuestDefinition quest) {
-        sendTitle(player,
+        sendTitle(
+                player,
                 Component.literal("QUEST COMPLETE").withStyle(ChatFormatting.GREEN, ChatFormatting.BOLD),
-                Component.literal(quest.title).withStyle(ChatFormatting.GOLD));
+                Component.literal(quest.title).withStyle(ChatFormatting.GOLD),
+                8, 38, 8);
         hide(player);
     }
 
-    public void togglePinned(ServerPlayer player, QuestRepository repo) {
+    public boolean togglePinned(ServerPlayer player, QuestRepository repo) {
         PlayerQuestState state = repo.state(player);
+        state.ensureTrackedQuest();
+
+        if (!state.hasAnyQuest() || state.trackedQuest.isBlank()) {
+            state.pinned = false;
+            repo.save(player);
+            hide(player);
+            player.sendSystemMessage(
+                    Component.literal("No active PrideQuest objectives.").withStyle(ChatFormatting.GRAY));
+            return false;
+        }
+
         state.pinned = !state.pinned;
         repo.save(player);
-        if (state.pinned && state.hasQuest()) {
-            showTracker(player, repo.getQuest(state.activeQuest), state);
-            player.sendSystemMessage(Component.literal("Quest tracker pinned. Use /q again to hide it.").withStyle(ChatFormatting.AQUA));
+
+        if (state.pinned) {
+            showTracker(player, repo.getQuest(state.trackedQuest), state.active(state.trackedQuest));
+            player.sendSystemMessage(
+                    Component.literal("Quest tracker pinned. Use /q again to hide it.")
+                            .withStyle(ChatFormatting.AQUA));
         } else {
+            temporaryUntil.remove(player.getUUID());
             hide(player);
-            player.sendSystemMessage(Component.literal("Quest tracker hidden. Use /q to pin it.").withStyle(ChatFormatting.GRAY));
+            player.sendSystemMessage(
+                    Component.literal("Quest tracker hidden. Use /q to pin it.")
+                            .withStyle(ChatFormatting.GRAY));
         }
+
+        return state.pinned;
     }
 
-    public void refresh(ServerPlayer player, QuestDefinition quest, PlayerQuestState state) {
-        if (state.pinned) showTracker(player, quest, state);
+    public void trackedQuestChanged(ServerPlayer player, QuestRepository repo) {
+        PlayerQuestState state = repo.state(player);
+        state.ensureTrackedQuest();
+
+        if (state.trackedQuest.isBlank()) {
+            hide(player);
+            return;
+        }
+
+        temporaryUntil.put(player.getUUID(), tick + TEMP_TICKS);
+        showTracker(player, repo.getQuest(state.trackedQuest), state.active(state.trackedQuest));
+    }
+
+    public void refresh(ServerPlayer player, QuestRepository repo) {
+        PlayerQuestState state = repo.state(player);
+        state.ensureTrackedQuest();
+
+        if (state.pinned && !state.trackedQuest.isBlank()) {
+            showTracker(player, repo.getQuest(state.trackedQuest), state.active(state.trackedQuest));
+        }
     }
 
     public void hide(ServerPlayer player) {
@@ -91,30 +161,58 @@ public final class QuestHud {
         }
     }
 
-    private void showTracker(ServerPlayer player, QuestDefinition quest, PlayerQuestState state) {
-        QuestDefinition.Objective obj = currentObjective(quest, state);
-        if (quest == null || obj == null) {
+    private void showTracker(
+            ServerPlayer player,
+            QuestDefinition quest,
+            PlayerQuestState.ActiveQuestState active) {
+        QuestDefinition.Objective objective = currentObjective(quest, active);
+        if (quest == null || objective == null || active == null) {
             hide(player);
             return;
         }
-        ServerBossEvent bar = bars.computeIfAbsent(player.getUUID(), ignored -> new ServerBossEvent(
-                Component.literal("PrideQuest"), BossEvent.BossBarColor.BLUE, BossEvent.BossBarOverlay.PROGRESS));
-        bar.setName(Component.literal("✦ " + quest.title + "  •  ").withStyle(ChatFormatting.AQUA)
-                .append(Component.literal(obj.text).withStyle(ChatFormatting.WHITE))
-                .append(Component.literal("  " + state.progress + "/" + Math.max(1, obj.target)).withStyle(ChatFormatting.YELLOW)));
-        bar.setProgress(Math.min(1.0F, (float) state.progress / (float) Math.max(1, obj.target)));
+
+        ServerBossEvent bar = bars.computeIfAbsent(
+                player.getUUID(),
+                ignored -> new ServerBossEvent(
+                        Component.literal("PrideQuest"),
+                        BossEvent.BossBarColor.BLUE,
+                        BossEvent.BossBarOverlay.PROGRESS));
+
+        bar.setName(
+                Component.literal("✦ " + quest.title + "  •  ").withStyle(ChatFormatting.AQUA)
+                        .append(Component.literal(objective.text).withStyle(ChatFormatting.WHITE))
+                        .append(progressComponent(active.progress, objective.target)));
+
+        bar.setProgress(Math.min(
+                1.0F,
+                (float) active.progress / (float) Math.max(1, objective.target)));
         bar.setVisible(true);
         bar.addPlayer(player);
     }
 
-    private QuestDefinition.Objective currentObjective(QuestDefinition quest, PlayerQuestState state) {
-        if (quest == null || quest.objectives == null || quest.objectives.isEmpty()) return null;
-        if (state.objectiveIndex < 0 || state.objectiveIndex >= quest.objectives.size()) return null;
-        return quest.objectives.get(state.objectiveIndex);
+    private QuestDefinition.Objective currentObjective(
+            QuestDefinition quest,
+            PlayerQuestState.ActiveQuestState active) {
+        if (quest == null || active == null || quest.objectives == null || quest.objectives.isEmpty()) {
+            return null;
+        }
+        if (active.objectiveIndex < 0 || active.objectiveIndex >= quest.objectives.size()) return null;
+        return quest.objectives.get(active.objectiveIndex);
     }
 
-    private void sendTitle(ServerPlayer player, Component title, Component subtitle) {
-        player.connection.send(new ClientboundSetTitlesAnimationPacket(10, 45, 10));
+    private Component progressComponent(int progress, int target) {
+        if (target <= 1) return Component.empty();
+        return Component.literal("  " + progress + "/" + target).withStyle(ChatFormatting.YELLOW);
+    }
+
+    private void sendTitle(
+            ServerPlayer player,
+            Component title,
+            Component subtitle,
+            int fadeIn,
+            int stay,
+            int fadeOut) {
+        player.connection.send(new ClientboundSetTitlesAnimationPacket(fadeIn, stay, fadeOut));
         player.connection.send(new ClientboundSetTitleTextPacket(title));
         player.connection.send(new ClientboundSetSubtitleTextPacket(subtitle));
     }
