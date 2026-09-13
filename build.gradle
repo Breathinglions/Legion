@@ -13,14 +13,9 @@ base {
 repositories {
     mavenCentral()
     maven { url = 'https://maven.fabricmc.net/' }
-    exclusiveContent {
-        forRepository {
-            maven {
-                name = 'Modrinth'
-                url = 'https://api.modrinth.com/maven'
-            }
-        }
-        filter { includeGroup 'maven.modrinth' }
+    maven {
+        name = 'Cobblemon'
+        url = 'https://artefacts.cobblemon.com/releases'
     }
 }
 
@@ -31,8 +26,8 @@ dependencies {
     modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
     modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_api_version}"
 
-    // Compile against Cobblemon 1.8.0 without bundling it into PrideQuest.
-    modCompileOnly "maven.modrinth:cobblemon:1.8.0+1.21.1"
+    // Official Cobblemon Maven coordinate used by current 1.8.0 addons.
+    modCompileOnly "com.cobblemon:fabric:1.8.0+1.21.1"
     compileOnly "org.jetbrains.kotlin:kotlin-stdlib:2.2.20"
 }
 
